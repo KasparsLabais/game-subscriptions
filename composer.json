@@ -2,7 +2,8 @@
     "name": "partygames/game-subscriptions",
     "autoload": {
         "psr-4": {
-            "Partygames\\GameSubscriptions\\": "src/"
+            "PartyGames\\GameSubscriptions\\": "src/",
+            "PartyGames\\GameSubscriptions\\Database\\Seeders\\" : "database/seeders/"
         }
     },
     "authors": [
@@ -14,7 +15,7 @@
     "extra" : {
         "laravel": {
             "providers": [
-                "Partygames\\GameSubscriptions\\GameSubscriptionsServiceProvider"
+                "PartyGames\\GameSubscriptions\\GameSubscriptionsServiceProvider"
             ]
         }
     },
