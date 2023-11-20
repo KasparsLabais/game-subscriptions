@@ -3,7 +3,9 @@
 namespace PartyGames\GameSubscriptions;
 
 use Illuminate\Support\Facades\Auth;
+use PartyGames\GameSubscriptions\Models\PaymentTransactions;
 use PartyGames\GameSubscriptions\Models\SubscriptionPackages;
+use PartyGames\GameSubscriptions\Models\SubscriptionPurchases;
 use Stripe\Price;
 
 class GameSubscriptions
@@ -34,8 +36,8 @@ class GameSubscriptions
         $price = $prices->data[0];
 
         $session = $stripe->checkout->sessions->create([
-            'success_url' => env('APP_URL') . '/premium/success?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => env('APP_URL') . '/premium',
+            'success_url' => 'https://is-a.gay/premium/success?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => 'https://is-a.gay/premium',
             'payment_method_types' => ['card'],
             'mode' => 'subscription',
             'line_items' => [
@@ -53,4 +55,39 @@ class GameSubscriptions
         return $session->url;
     }
 
+
+    public static function createTransaction($transactionObject, $userId)
+    {
+        $transaction = new PaymentTransactions();
+        $transaction->payment_method = 'card';
+        $transaction->payment_gateway = 'stripe';
+        $transaction->payment_gateway_transaction_id = $transactionObject->id;
+        $transaction->payment_gateway_status = $transactionObject->payment_status;
+        $transaction->payment_gateway_error = '';
+        $transaction->amount = $transactionObject->amount_total;
+        $transaction->user_id = $userId;
+        $transaction->save();
+
+        return $transaction;
+    }
+
+    public static function createSubscriptionPurchase($transactions, $userId, $subscriptionId)
+    {
+        $subscription = new SubscriptionPurchases();
+        $subscription->user_id = $userId;
+        $subscription->subscription_package_id = $subscriptionId;
+        $subscription->start_date = date('Y-m-d H:i:s');
+        $subscription->end_date = date('Y-m-d H:i:s', strtotime('+1 month'));
+        $subscription->active = true;
+        $subscription->payment_transaction_id = $transactions->id;
+        $subscription->save();
+
+        return $subscription;
+    }
+
+    public static function getPremiumLevelFromSubscriptionId($subscriptionId)
+    {
+        $subscriptionPackage = SubscriptionPackages::find($subscriptionId);
+        return $subscriptionPackage->premium_level;
+    }
 }

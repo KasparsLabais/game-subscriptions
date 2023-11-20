@@ -17,6 +17,7 @@ class PaymentTransactions extends Model
         'payment_gateway_error_code',
         'payment_gateway_error_message',
         'amount',
+        'user_id'
     ];
 
     protected $casts = [
