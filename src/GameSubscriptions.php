@@ -24,7 +24,7 @@ class GameSubscriptions
         //dd($subscriptionPackages);
     }
 
-    public static function createCheckoutSession($lookupKey)
+    public static function createCheckoutSession($lookupKey, $subscriptionId = null)
     {
         $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
         $prices = $stripe->prices->all([
@@ -43,6 +43,10 @@ class GameSubscriptions
                     'price' => $price->id,
                     'quantity' => 1,
                 ],
+            ],
+            'metadata' => [
+                'user_id' => Auth::user()->id,
+                'subscription_id' => $subscriptionId,
             ],
         ]);
 
